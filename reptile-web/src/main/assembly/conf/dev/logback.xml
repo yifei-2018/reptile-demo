@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <!--格式化输出：%-5level：级别从左显示5个字符宽度，%d表示日期，%thread表示线程名，%msg：日志消息，%n是换行符-->
+    <property name="LOG_PATTERN"
+              value="%-5level [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %logger{50}.%method:%line - %msg%n"/>
+    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_HOME" value="logs/reptile-web"/>
+    <!--定义应用名称-->
+    <property name="APP_NAME" value="reptileWeb"/>
+    <!--定义日志类型-打点（desc）-->
+    <property name="LOG_TYPE_DESC" value="run"/>
+    <!--定义日志类型-访问（visit）-->
+    <property name="LOG_TYPE_VISIT" value="visit"/>
+    <!--定义日志类型-监控（monitor）-->
+    <property name="LOG_TYPE_MONITOR" value="monitor"/>
+    <!--定义日志文件保留时间-->
+    <property name="MAX_HISTORY" value="30"/>
+    <!--定义日志单文件最大的存储-->
+    <property name="MAX_FILE_SIZE" value="64MB"/>
+    <!--定义日志编码-->
+    <property name="LOG_CHARSET" value="UTF-8"/>
+
+    <!-- 控制台输出 -->
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化输出-->
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 滚动生成日志文件_运行信息 -->
+    <appender name="runInfoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>
+                ${LOG_HOME}/run/${APP_NAME}_${LOG_TYPE_DESC}_runInfo_%d{yyyy-MM-dd}_%i.log
+            </fileNamePattern>
+            <!--日志文件保留时间，时间单位与fileNamePattern中%d{}的设置一致-->
+            <MaxHistory>${MAX_HISTORY}</MaxHistory>
+            <!--单文件最大的存储-->
+            <MaxFileSize>${MAX_FILE_SIZE}</MaxFileSize>
+        </rollingPolicy>
+        <!--编码器-->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化输出-->
+            <pattern>${LOG_PATTERN}</pattern>
+            <!--日志编码-->
+            <charset>${LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <!-- 滚动生成日志文件_错误信息 -->
+    <appender name="errorInfoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--过滤器-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <!--滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${LOG_HOME}/error/${APP_NAME}_${LOG_TYPE_MONITOR}_error_%d{yyyy-MM-dd}_%i.log
+            </fileNamePattern>
+            <!--日志文件保留时间，时间单位与fileNamePattern中%d{}的设置一致-->
+            <MaxHistory>${MAX_HISTORY}</MaxHistory>
+            <!--单文件最大的存储-->
+            <MaxFileSize>${MAX_FILE_SIZE}</MaxFileSize>
+        </rollingPolicy>
+        <!--编码器-->
+        <encoder>
+            <!--格式化输出-->
+            <pattern>${LOG_PATTERN}</pattern>
+            <!--日志编码-->
+            <charset>${LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <!-- 日志输出级别 -->
+    <root level="DEBUG">
+        <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="runInfoAppender"/>
+        <appender-ref ref="errorInfoAppender"/>
+    </root>
+</configuration>

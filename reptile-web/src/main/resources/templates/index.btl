@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ch">
+
+<head>
+    <meta charset="utf-8">
+    <title>首页</title>
+    <link rel="stylesheet" href="${ctxPath}/css/init.css"/>
+    <link rel="stylesheet" href="${ctxPath}/plugin/backtop/back.css"/>
+    <link rel="stylesheet" href="${ctxPath}/plugin/loading/loading.css"/>
+    <link rel="stylesheet" href="${ctxPath}/css/index.css"/>
+    <script type="text/javascript">
+        var ctxPath = '${ctxPath}';
+    </script>
+</head>
+<body>
+<!-- head -->
+<header>
+
+</header>
+
+<!-- 检索框 -->
+<div class="search-input-container">
+    <div class="content-container" style="padding-top: 60px;padding-bottom: 80px;">
+        <!-- 输入框 -->
+        <div class="search-input-box">
+            <div class="search-input"><input id="qryStr" type="text" placeholder="请输入yyk99网站省或直辖市编码"/></div>
+            <div id="searchBtn" class="search-btn" onclick="query()">检索</div>
+        </div>
+    </div>
+</div>
+
+<!-- 内容展示 -->
+<div id="contentTableContainer" class="content-container content-container-bg" style="display: none">
+    <div class="tool-box">
+        <div class="count-text">共检索到<span id="resultCount" class="result-num">0</span>条数据<span class="download-btn"
+                                                                                               onclick="downloadFile()">下载</span>
+        </div>
+    </div>
+    <table id="contentTable" class="content-table">
+        <thead>
+        <tr>
+            <th width="5%">序号</th>
+            <th width="35%">医院名称</th>
+            <th width="15%">省</th>
+            <th width="15%">市</th>
+            <th width="15%">区</th>
+            <th width="15%">街道</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<script src="${ctxPath}/js/lib/jquery-3.4.1.min.js"></script>
+<script src="${ctxPath}/plugin/backtop/back.js"></script>
+<script src="${ctxPath}/plugin/loading/loading.js"></script>
+<script src="${ctxPath}/js/common/util.js"></script>
+<script src="${ctxPath}/js/index.js?v=1.0.0"></script>
+</body>
+</html>

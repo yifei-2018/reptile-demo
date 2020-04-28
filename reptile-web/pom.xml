@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>reptile-parent</artifactId>
+        <groupId>com.yifei.reptile</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>reptile-web</artifactId>
+
+    <properties>
+        <!--指定具体编码方式-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <beetl.version>1.2.5.RELEASE</beetl.version>
+    </properties>
+
+    <dependencies>
+        <!--spring-boot-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--beetl模板-->
+        <dependency>
+            <groupId>com.ibeetl</groupId>
+            <artifactId>beetl-framework-starter</artifactId>
+            <version>${beetl.version}</version>
+        </dependency>
+        <!--二方库-->
+        <dependency>
+            <groupId>com.yifei.reptile</groupId>
+            <artifactId>reptile-util</artifactId>
+            <version>${parent.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>asm</artifactId>
+                    <groupId>org.ow2.asm</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <!--多环境配置-->
+    <profiles>
+        <!--开发环境-->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env.mode>dev</env.mode>
+                <dev.skipAssembly>false</dev.skipAssembly>
+                <test.skipAssembly>true</test.skipAssembly>
+                <prod.skipAssembly>true</prod.skipAssembly>
+            </properties>
+        </profile>
+        <!--测试环境-->
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env.mode>test</env.mode>
+                <dev.skipAssembly>true</dev.skipAssembly>
+                <test.skipAssembly>false</test.skipAssembly>
+                <prod.skipAssembly>true</prod.skipAssembly>
+            </properties>
+        </profile>
+        <!--生产环境-->
+        <profile>
+            <id>prod</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <env.mode>prod</env.mode>
+                <dev.skipAssembly>true</dev.skipAssembly>
+                <test.skipAssembly>true</test.skipAssembly>
+                <prod.skipAssembly>false</prod.skipAssembly>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <!-- 产生的构建文件名，默认值是${project.artifactId}-${project.version} -->
+        <finalName>${project.artifactId}</finalName>
+
+        <!-- 构建产生的所有文件存放的目录 -->
+        <directory>../output/${project.artifactId}</directory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+
+            <!-- 配置 运行mvn install时跳过Test -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
+            <!--指定maven插件编译版本-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <!-- 解决资源文件的编码问题 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+
+            <!--assembly插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <!--开发环境-->
+                    <execution>
+                        <id>make-assembly-dev</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>${dev.skipAssembly}</skipAssembly>
+                            <descriptors>
+                                <!--加载指定的assembly配置文件-->
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <!--测试环境-->
+                    <execution>
+                        <id>make-assembly-test</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>${test.skipAssembly}</skipAssembly>
+                            <descriptors>
+                                <!--加载指定的assembly配置文件-->
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <!--生产环境-->
+                    <execution>
+                        <id>make-assembly-prod</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>${prod.skipAssembly}</skipAssembly>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <!--将指定目录作为resources目录-->
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <!-- 是否替换资源中的属性 -->
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/assembly/conf</directory>
+            </resource>
+            <resource>
+                <directory>src/main/assembly/conf/${env.mode}</directory>
+            </resource>
+        </resources>
+    </build>
+
+</project>

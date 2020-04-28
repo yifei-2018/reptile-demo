@@ -1,0 +1,12 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body, div {
+    font: 14px Microsoft YaHei, Arial, SimSun;
+}
+
+ul, dl, ol {
+    list-style: none;
+}

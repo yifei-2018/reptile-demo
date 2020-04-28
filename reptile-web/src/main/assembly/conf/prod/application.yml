@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: reptileWeb
+server:
+  #  tomcat端口，默认8080
+  port: 9090
+  servlet:
+    context-path: /reptileWeb
+# beetl配置
+beetl:
+  extPropertiesPath: beetl.properties
+  templatesPath: /templates
+  suffix: .btl
