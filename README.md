@@ -6,7 +6,7 @@
     此模块为web交互模块，目前只含controller层。
 
 # 爬虫demo页面说明
-1. 本地服务启动后，在浏览器访问http://localhost:9090/reptileWeb/index/index，首页展示如下：
+1. 本地服务启动后，在浏览器访问<http://localhost:9090/reptileWeb/index/index>，首页展示如下：
 ![image](https://github.com/yifei-2018/img/blob/master/reptile-demo/index.png)
 2. 按照输入框提示，输入对应编码，进行爬虫，具体步骤如下：
 ![image](https://github.com/yifei-2018/img/blob/master/reptile-demo/search-guide.png)
