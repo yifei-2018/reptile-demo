@@ -23,7 +23,7 @@
     <div class="content-container" style="padding-top: 60px;padding-bottom: 80px;">
         <!-- 输入框 -->
         <div class="search-input-box">
-            <div class="search-input"><input id="qryStr" type="text" placeholder="请输入yyk99网站省或直辖市编码"/></div>
+            <div class="search-input"><input id="qryStr" type="text" placeholder="请输入yyk99网站省、直辖市、地级市、区或街道编码，如：wuhan"/></div>
             <div id="searchBtn" class="search-btn" onclick="query()">检索</div>
         </div>
     </div>
