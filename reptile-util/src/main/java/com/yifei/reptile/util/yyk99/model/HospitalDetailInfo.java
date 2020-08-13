@@ -5,13 +5,14 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 医院信息
+ * 医院详情信息
  *
- * @author yifei
- * @date 2020/4/25
+ * @author luqs
+ * @version v1.0
+ * @date 2020/8/13 00:48
  */
 @Data
-public class HospitalInfo implements Serializable {
+public class HospitalDetailInfo implements Serializable {
     private static final long serialVersionUID = -2146926691311226666L;
     /**
      * 医院名称
@@ -42,23 +43,11 @@ public class HospitalInfo implements Serializable {
      */
     private String address;
     /**
-     * 省名
-     */
-    private String provinceName;
-    /**
-     * 市（直辖市）名
-     */
-    private String cityName;
-    /**
-     * 区名
-     */
-    private String districtName;
-    /**
-     * 街道名
-     */
-    private String streetName;
-    /**
      * 备注
      */
     private String remark;
+    /**
+     * 地址信息
+     */
+    private AddressInfo addressInfo;
 }

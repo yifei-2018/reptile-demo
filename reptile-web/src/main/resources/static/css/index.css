@@ -175,15 +175,28 @@ body {
     cursor: pointer;
 }
 
-.content-table {
+.result-content-box {
     margin: auto;
     width: 98%;
+    overflow-x: auto;
+}
+
+.content-table {
+    width: 150%;
     border-collapse: collapse;
     background-color: white;
 }
 
 .content-table thead {
     background-color: #3bd4ff;
+}
+
+.content-table th {
+    width: 10%;
+}
+
+.content-table th:nth-child(1) {
+    width: 3%;
 }
 
 .content-table th,

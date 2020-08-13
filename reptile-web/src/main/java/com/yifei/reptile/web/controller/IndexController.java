@@ -1,5 +1,6 @@
 package com.yifei.reptile.web.controller;
 
+import com.yifei.reptile.util.ThreadPoolUtils;
 import com.yifei.reptile.util.yyk99.Yyk99Utils;
 import com.yifei.reptile.util.yyk99.model.HospitalInfo;
 import com.yifei.reptile.util.yyk99.model.ReptileResult;
@@ -38,16 +39,19 @@ public class IndexController {
         ReptileResult<List<HospitalInfo>> reptileResult = Yyk99Utils.grabHospitalInfoList(reptileCode);
         logger.info("爬取耗时：【{}】ms", System.currentTimeMillis() - startTime);
         if (reptileResult.isSuccess()) {
-            long startTime1 = System.currentTimeMillis();
-            Yyk99Utils.writeExcel(reptileCode, reptileResult.getData());
-            logger.info("写入耗时：【{}】ms", System.currentTimeMillis() - startTime1);
+            // 异步写入
+            ThreadPoolUtils.getThreadPoolExecutor().execute(() -> {
+                long startTime1 = System.currentTimeMillis();
+                Yyk99Utils.writeExcel(reptileCode, reptileResult.getData());
+                logger.info("写入耗时：【{}】ms", System.currentTimeMillis() - startTime1);
+            });
         }
         return reptileResult.getData();
     }
 
     @RequestMapping("/downloadReptileFile/{reptileCode}")
-    public void downloadReptileFile(HttpServletRequest request, @PathVariable("reptileCode") String reptileCode, HttpServletResponse response) {
-        String filePath = Yyk99Utils.REPTILE_FILE_PATH + reptileCode+".xlsx";
+    public void downloadReptileFile(@PathVariable("reptileCode") String reptileCode, HttpServletResponse response) {
+        String filePath = Yyk99Utils.REPTILE_FILE_PATH + reptileCode + ".xlsx";
         File file = new File(filePath);
         if (!file.exists() || !file.isFile()) {
             logger.warn("文件【" + filePath + "】不存在！");
@@ -61,7 +65,7 @@ public class IndexController {
             response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(file.getName(), "utf-8"));
             response.addHeader("Content-Length", String.valueOf(file.length()));
             byte[] bufferBytes = new byte[1024 * 1024];
-            int readInt = 0;
+            int readInt;
             while ((readInt = bufferedInputStream.read(bufferBytes)) != 0) {
                 bufferedOutputStream.write(bufferBytes, 0, readInt);
             }

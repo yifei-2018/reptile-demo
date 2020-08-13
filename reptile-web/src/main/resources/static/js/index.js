@@ -102,10 +102,16 @@ function handleQryResult(dataList) {
         appendTdHtml = '';
         appendTdHtml += '<td>' + (i + 1) + '</td>';
         appendTdHtml += '<td><a href="' + StringUtils.defaultString(dataObj.detailUrl) + '" target="_blank">' + StringUtils.defaultString(dataObj.name) + '</a></td>';
+        appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.alias) + '</td>';
+        appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.grade) + '</td>';
+        appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.nature) + '</td>';
+        appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.tel) + '</td>';
+        appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.address) + '</td>';
         appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.provinceName) + '</td>';
         appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.cityName) + '</td>';
         appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.districtName) + '</td>';
         appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.streetName) + '</td>';
+        appendTdHtml += '<td>' + StringUtils.defaultString(dataObj.remark) + '</td>';
         appendTrHtml += ('<tr>' + appendTdHtml + '</tr>');
     }
     $('#contentTable tbody').html(appendTrHtml);

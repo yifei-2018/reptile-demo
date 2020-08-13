@@ -3,6 +3,8 @@ package com.yifei.reptile.util.yyk99;
 import com.yifei.reptile.util.CollectionUtils;
 import com.yifei.reptile.util.HttpUtils;
 import com.yifei.reptile.util.yyk99.constant.ReptileConstant;
+import com.yifei.reptile.util.yyk99.model.AddressInfo;
+import com.yifei.reptile.util.yyk99.model.HospitalDetailInfo;
 import com.yifei.reptile.util.yyk99.model.HospitalInfo;
 import com.yifei.reptile.util.yyk99.model.ReptileResult;
 import org.apache.commons.lang3.StringUtils;
@@ -68,8 +70,7 @@ public class Yyk99Utils {
         List<HospitalInfo> hospitalInfoList = new ArrayList<>();
         // 面包屑
         Elements addressElements = document.getElementsByClass("m-current").first().getElementsByClass("fl").first().getElementsByTag("a");
-        int addressElemSize = addressElements.size();
-        HospitalInfo addressInfo = getAddressInfo(addressElements);
+        AddressInfo addressInfo = getAddressInfo(addressElements);
         for (Element mBoxElement : mBoxElements) {
             Elements uTitleElements = mBoxElement.getElementsByClass("u-title-3");
             // 过滤“地区列表”
@@ -124,7 +125,42 @@ public class Yyk99Utils {
                 }
             }
         }
+        // 获取医院详情信息
+        handleHospitalDetailInfo(hospitalInfoList);
         return new ReptileResult<>(hospitalInfoList);
+    }
+
+    /**
+     * 处理医院详情
+     *
+     * @param hospitalInfoList 医院信息
+     */
+    private static void handleHospitalDetailInfo(List<HospitalInfo> hospitalInfoList) {
+        if (CollectionUtils.isEmpty(hospitalInfoList)) {
+            return;
+        }
+        hospitalInfoList.forEach(hospitalInfo -> {
+            HospitalDetailInfo detailInfo = getHospitalDetailInfo(hospitalInfo.getName(), hospitalInfo.getDetailUrl());
+            AddressInfo addressInfo = detailInfo.getAddressInfo();
+            hospitalInfo.setAlias(detailInfo.getAlias());
+            hospitalInfo.setGrade(detailInfo.getGrade());
+            hospitalInfo.setNature(detailInfo.getNature());
+            hospitalInfo.setTel(detailInfo.getTel());
+            hospitalInfo.setAddress(detailInfo.getAddress());
+            if (StringUtils.isNotBlank(addressInfo.getProvinceName())) {
+                hospitalInfo.setProvinceName(addressInfo.getProvinceName());
+            }
+            if (StringUtils.isNotBlank(addressInfo.getCityName())) {
+                hospitalInfo.setCityName(addressInfo.getCityName());
+            }
+            if (StringUtils.isNotBlank(addressInfo.getDistrictName())) {
+                hospitalInfo.setDistrictName(addressInfo.getDistrictName());
+            }
+            if (StringUtils.isNotBlank(addressInfo.getStreetName())) {
+                hospitalInfo.setStreetName(addressInfo.getStreetName());
+            }
+            hospitalInfo.setRemark(detailInfo.getRemark());
+        });
     }
 
     /**
@@ -147,15 +183,22 @@ public class Yyk99Utils {
                 FileOutputStream outputStream = new FileOutputStream(createHandlingResultFile(reptileCode))
         ) {
             Sheet sheet = workbook.createSheet(sheetName);
+            createTitleRow(sheet);
             for (int i = 0; i < hospitalInfoList.size(); i++) {
                 HospitalInfo hospitalInfo = hospitalInfoList.get(i);
-                Row row = sheet.createRow(i);
-                row.createCell(0).setCellValue(hospitalInfo.getProvinceName());
-                row.createCell(1).setCellValue(hospitalInfo.getCityName());
-                row.createCell(2).setCellValue(hospitalInfo.getDistrictName());
-                row.createCell(3).setCellValue(hospitalInfo.getStreetName());
-                row.createCell(4).setCellValue(hospitalInfo.getName());
-                row.createCell(5).setCellValue(hospitalInfo.getDetailUrl());
+                Row row = sheet.createRow(i + 1);
+                row.createCell(0).setCellValue(hospitalInfo.getName());
+                row.createCell(1).setCellValue(hospitalInfo.getDetailUrl());
+                row.createCell(2).setCellValue(hospitalInfo.getAlias());
+                row.createCell(3).setCellValue(hospitalInfo.getGrade());
+                row.createCell(4).setCellValue(hospitalInfo.getNature());
+                row.createCell(5).setCellValue(hospitalInfo.getTel());
+                row.createCell(6).setCellValue(hospitalInfo.getAddress());
+                row.createCell(7).setCellValue(hospitalInfo.getProvinceName());
+                row.createCell(8).setCellValue(hospitalInfo.getCityName());
+                row.createCell(9).setCellValue(hospitalInfo.getDistrictName());
+                row.createCell(10).setCellValue(hospitalInfo.getStreetName());
+                row.createCell(11).setCellValue(hospitalInfo.getRemark());
             }
             workbook.write(outputStream);
             outputStream.flush();
@@ -164,6 +207,27 @@ public class Yyk99Utils {
             logger.error("【{}】写入文件出现异常:", sheetName, e);
             return new ReptileResult(ReptileConstant.HANDLE_FAIL_CODE, "写入文件失败！");
         }
+    }
+
+    /**
+     * 创建标题行
+     *
+     * @param sheet sheet
+     */
+    private static void createTitleRow(Sheet sheet) {
+        Row row = sheet.createRow(0);
+        row.createCell(0).setCellValue("名称");
+        row.createCell(1).setCellValue("详情url");
+        row.createCell(2).setCellValue("别名");
+        row.createCell(3).setCellValue("等级");
+        row.createCell(4).setCellValue("性质");
+        row.createCell(5).setCellValue("电话");
+        row.createCell(6).setCellValue("地址");
+        row.createCell(7).setCellValue("省");
+        row.createCell(8).setCellValue("市");
+        row.createCell(9).setCellValue("区");
+        row.createCell(10).setCellValue("街道");
+        row.createCell(11).setCellValue("备注");
     }
 
     /**
@@ -188,53 +252,110 @@ public class Yyk99Utils {
     }
 
     /**
+     * 获取医院详情信息
+     *
+     * @param hospitalName 医院名称
+     * @param detailUrl    详情url
+     * @return HospitalDetailInfo
+     */
+    private static HospitalDetailInfo getHospitalDetailInfo(String hospitalName, String detailUrl) {
+        long startTimeStamp = System.currentTimeMillis();
+        HospitalDetailInfo detailInfo = new HospitalDetailInfo();
+        detailInfo.setName(hospitalName);
+        detailInfo.setDetailUrl(detailUrl);
+        detailInfo.setAddressInfo(new AddressInfo());
+        Document document;
+        String html = HttpUtils.get(detailUrl);
+        try {
+            document = Jsoup.parse(html);
+        } catch (Exception e) {
+            logger.error("医院【{}】详情url：【{}】，返回html：【{}】，爬虫url访问失败：", hospitalName, detailUrl, html, e);
+            detailInfo.setRemark("爬虫失败，原因：详情页访问失败！");
+            return detailInfo;
+        }
+
+        Elements wrapMnElements = document.getElementsByClass("wrap-mn");
+        if (CollectionUtils.isEmpty(wrapMnElements)) {
+            logger.error("url：【{}】，class(wrap-mn)元素不存在！", detailUrl);
+            detailInfo.setRemark("爬虫失败，原因：class(wrap-mn)元素不存在！");
+            return detailInfo;
+        }
+
+        Element wrapMnElement = wrapMnElements.first();
+        // 等级
+        String grade = wrapMnElement.getElementsByClass("wrap-grade").first().getElementsByClass("grade").first().text();
+        // 别名
+        Elements pElements = wrapMnElement.getElementsByTag("dl").first().getElementsByTag("dd").first().getElementsByTag("p");
+        Element aliasElement = pElements.get(0);
+        String alias = StringUtils.replace(aliasElement.text(), aliasElement.getElementsByTag("span").text(), "");
+        // 性质
+        Element natureElement = pElements.get(1);
+        String nature = StringUtils.replace(natureElement.text(), natureElement.getElementsByTag("span").text(), "");
+        // 电话
+        String tel = pElements.get(2).getElementsByTag("em").first().text();
+        // 地址
+        String address = pElements.get(3).getElementsByTag("em").first().text();
+        // 面包屑地址
+        Elements addressElements = document.getElementsByClass("crumb").first().getElementsByTag("p").first().getElementsByTag("a");
+        AddressInfo addressInfo = getAddressInfo(addressElements);
+        detailInfo.setAlias(StringUtils.defaultString(alias));
+        detailInfo.setGrade(StringUtils.defaultString(grade));
+        detailInfo.setNature(StringUtils.defaultString(nature));
+        detailInfo.setTel(StringUtils.defaultString(tel));
+        detailInfo.setAddress(StringUtils.defaultString(address));
+        detailInfo.setAddressInfo(addressInfo);
+        logger.info("爬取医院【{}】耗时【{}】ms", hospitalName, System.currentTimeMillis() - startTimeStamp);
+        return detailInfo;
+    }
+
+    /**
      * 获取医院地址信息
      *
      * @param addressElements 元素集
      * @return HospitalInfo
      */
-    private static HospitalInfo getAddressInfo(Elements addressElements) {
-        HospitalInfo hospitalInfo = new HospitalInfo();
+    private static AddressInfo getAddressInfo(Elements addressElements) {
+        AddressInfo addressInfo = new AddressInfo();
         int elemSize = addressElements.size();
         String provinceName = addressElements.eq(1).text();
         if (elemSize == 4) {
             if (checkDirectCity(provinceName)) {
-                hospitalInfo.setCityName(provinceName);
+                addressInfo.setCityName(provinceName);
             } else {
-                hospitalInfo.setProvinceName(provinceName);
+                addressInfo.setProvinceName(provinceName);
             }
-            return hospitalInfo;
+            return addressInfo;
         }
         if (elemSize == 5) {
             if (checkDirectCity(provinceName)) {
-                hospitalInfo.setCityName(provinceName);
-                hospitalInfo.setDistrictName(addressElements.eq(2).text());
+                addressInfo.setCityName(provinceName);
+                addressInfo.setDistrictName(addressElements.eq(2).text());
             } else {
-                hospitalInfo.setProvinceName(provinceName);
-                hospitalInfo.setCityName(addressElements.eq(2).text());
+                addressInfo.setProvinceName(provinceName);
+                addressInfo.setCityName(addressElements.eq(2).text());
             }
-            return hospitalInfo;
+            return addressInfo;
         }
         if (elemSize == 6) {
             if (checkDirectCity(provinceName)) {
-                hospitalInfo.setCityName(provinceName);
-                hospitalInfo.setDistrictName(addressElements.eq(2).text());
-                hospitalInfo.setStreetName(addressElements.eq(3).text());
+                addressInfo.setCityName(provinceName);
+                addressInfo.setDistrictName(addressElements.eq(2).text());
+                addressInfo.setStreetName(addressElements.eq(3).text());
             } else {
-                hospitalInfo.setProvinceName(provinceName);
-                hospitalInfo.setCityName(addressElements.eq(2).text());
-                hospitalInfo.setDistrictName(addressElements.eq(3).text());
+                addressInfo.setProvinceName(provinceName);
+                addressInfo.setCityName(addressElements.eq(2).text());
+                addressInfo.setDistrictName(addressElements.eq(3).text());
             }
-            return hospitalInfo;
+            return addressInfo;
         }
         if (elemSize == 7) {
-            hospitalInfo.setProvinceName(provinceName);
-            hospitalInfo.setCityName(addressElements.eq(2).text());
-            hospitalInfo.setDistrictName(addressElements.eq(3).text());
-            hospitalInfo.setStreetName(addressElements.eq(4).text());
-            return hospitalInfo;
+            addressInfo.setProvinceName(provinceName);
+            addressInfo.setCityName(addressElements.eq(2).text());
+            addressInfo.setDistrictName(addressElements.eq(3).text());
+            addressInfo.setStreetName(addressElements.eq(4).text());
+            return addressInfo;
         }
-        return hospitalInfo;
+        return addressInfo;
     }
 
     /**

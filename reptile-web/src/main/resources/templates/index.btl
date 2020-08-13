@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="${ctxPath}/css/init.css"/>
     <link rel="stylesheet" href="${ctxPath}/plugin/backtop/back.css"/>
     <link rel="stylesheet" href="${ctxPath}/plugin/loading/loading.css"/>
-    <link rel="stylesheet" href="${ctxPath}/css/index.css"/>
+    <link rel="stylesheet" href="${ctxPath}/css/index.css?v=20200813101012"/>
     <script type="text/javascript">
         var ctxPath = '${ctxPath}';
     </script>
@@ -23,7 +23,8 @@
     <div class="content-container" style="padding-top: 60px;padding-bottom: 80px;">
         <!-- 输入框 -->
         <div class="search-input-box">
-            <div class="search-input"><input id="qryStr" type="text" placeholder="请输入yyk99网站省、直辖市、地级市、区或街道编码，如：wuhan"/></div>
+            <div class="search-input"><input id="qryStr" type="text"
+                                             placeholder="请输入yyk99网站省、直辖市、地级市、区或街道编码，如：hubei、wuhan"/></div>
             <div id="searchBtn" class="search-btn" onclick="query()">检索</div>
         </div>
     </div>
@@ -36,25 +37,33 @@
                                                                                                onclick="downloadFile()">下载</span>
         </div>
     </div>
-    <table id="contentTable" class="content-table">
-        <thead>
-        <tr>
-            <th width="5%">序号</th>
-            <th width="35%">医院名称</th>
-            <th width="15%">省</th>
-            <th width="15%">市</th>
-            <th width="15%">区</th>
-            <th width="15%">街道</th>
-        </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div class="result-content-box">
+        <table id="contentTable" class="content-table">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>医院名称</th>
+                <th>别名</th>
+                <th>等级</th>
+                <th>性质</th>
+                <th>电话</th>
+                <th>地址</th>
+                <th>省</th>
+                <th>市</th>
+                <th>区</th>
+                <th>街道</th>
+                <th>备注</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 <script src="${ctxPath}/js/lib/jquery-3.4.1.min.js"></script>
 <script src="${ctxPath}/plugin/backtop/back.js"></script>
 <script src="${ctxPath}/plugin/loading/loading.js"></script>
 <script src="${ctxPath}/js/common/util.js"></script>
-<script src="${ctxPath}/js/index.js?v=1.0.0"></script>
+<script src="${ctxPath}/js/index.js?v=20200813000000"></script>
 </body>
 </html>
