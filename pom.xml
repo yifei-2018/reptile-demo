@@ -21,7 +21,7 @@
         <httpclient.version>4.5.6</httpclient.version>
         <fastjson.version>1.2.56</fastjson.version>
         <poi-ooxml.version>3.17</poi-ooxml.version>
-        <jsoup.version>1.11.3</jsoup.version>
+        <jsoup.version>1.14.2</jsoup.version>
         <webmagic.version>0.7.3</webmagic.version>
         <guava.version>21.0</guava.version>
     </properties>
